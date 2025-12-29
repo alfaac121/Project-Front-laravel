@@ -3,30 +3,42 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\FavoriteController;
 
-// Ruta principal (página de bienvenida sin autenticar)
-Route::get('/', [WelcomeController::class, 'index'])->name('home');
+// Ruta de bienvenida (Landing Page para invitados)
+Route::get('/', [WelcomeController::class, 'index'])->name('landing');
 
-// Rutas de autenticación - LOGIN
+// Autenticación
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('guest');
-
-// Ruta de registro
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register')->middleware('guest');
 Route::post('/register', [AuthController::class, 'register'])->middleware('guest');
-
-// Ruta para cerrar sesión
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Ruta protegida (dashboard después de login exitoso)
-Route::get('/welcome', function () {
-    // Auth middleware ya maneja la redirección si no está logueado
-    return view('dashboard.index'); // o la vista que uses como dashboard
-})->name('welcome')->middleware('auth');
-
-// Rutas para recuperar contraseña
+// Forgot Password
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('forgot.password')->middleware('guest');
-
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email')->middleware('guest');
+
+// Rutas Protegidas (Auth)
+Route::middleware(['auth', \App\Http\Middleware\EnsureSingleSession::class])->group(function () {
+    // Home
+    Route::get('/welcome', [HomeController::class, 'index'])->name('welcome');
+    
+    // Productos
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+    
+    // Favoritos
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{seller_id}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+    
+    // Perfil
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});

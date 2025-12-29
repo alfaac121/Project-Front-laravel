@@ -3,31 +3,46 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class Usuario extends Authenticatable
+class Usuario extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $table = 'usuarios';
 
     protected $fillable = [
-        'nombre',
-        'correo_id',
-        'password',
-        'estado_id',
+        'cuenta_id',
+        'nickname',
         'rol_id',
+        'estado_id',
+        'imagen',
+        'descripcion',
+        'link',
     ];
 
-    public function correo()
+    public function cuenta()
     {
-        return $this->belongsTo(Correo::class, 'correo_id');
+        return $this->belongsTo(Cuenta::class, 'cuenta_id');
     }
 
-    // Accessor para que Laravel pueda obtener el email (necesario para reset password nativo)
-    public function getEmailAttribute()
+    public function productos()
     {
-        return $this->correo ? $this->correo->correo : null;
+        return $this->hasMany(Producto::class, 'vendedor_id');
+    }
+
+    public function favoritos_dados()
+    {
+        return $this->hasMany(Favorito::class, 'votante_id');
+    }
+
+    public function favoritos_recibidos()
+    {
+        return $this->hasMany(Favorito::class, 'votado_id');
+    }
+    
+    public function login_ips()
+    {
+        return $this->hasOne(LoginIp::class, 'usuario_id');
     }
 }

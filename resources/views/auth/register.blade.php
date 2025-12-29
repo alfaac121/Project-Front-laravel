@@ -33,12 +33,12 @@
             <form method="POST" action="{{ route('register') }}"> <!-- Assuming a POST route will be created later or exists -->
                 @csrf
                 <div class="form-group form-group-lg">
-                    <label for="name">Nombre Completo</label>
+                    <label for="nickname">Usuario / Nickname</label>
                     <input 
                         type="text" 
-                        id="name" 
-                        name="name" 
-                        value="{{ old('name') }}"
+                        id="nickname" 
+                        name="nickname" 
+                        value="{{ old('nickname') }}"
                         required>
                 </div>
 
